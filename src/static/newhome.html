@@ -20,7 +20,11 @@
     makeRequest('client.js', q1, q2);
   
   };
-  
+ 
+  /**
+   * sends the two questions to the given URL
+   * 
+   */
   function makeRequest(url, q1, q2){
     httpRequest = new XMLHttpRequest();
 
@@ -32,12 +36,20 @@
     //need to make another route to handle the incoming data, sweet
     var url = "http://localhost:8080/data"
     httpRequest.onreadystatechange = alertContents;
-    httpRequest.open('POST', url);
+    httpRequest.open('POST', url, true);
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    httpRequest.send('questionOne=' + encodeURIComponent(q1) + 'questionTwo=' + encodeURIComponent(q2));
+    var xmlStr = "<questions><one>" + q1 + "</one>" + "<two>" + q2 + "</two></questions>"
+    httpRequest.send(xmlStr)
+      
+    //httpRequest.send('questionOne=' + encodeURIComponent(q1) + '&' + 'questionTwo=' + encodeURIComponent(q2));
 
   }
 
+
+  /**
+   * uses alert() to inform us the result of the server's response
+   *
+   */
   function alertContents(){
     if(http.Request.readyState === XMLHttpRequest.DONE){
       if(httpRequest.status === 200){

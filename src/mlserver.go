@@ -6,7 +6,7 @@ import (
   "net/http"
   //"encoding/json"
   "encoding/xml"
-  "reflect"
+  _"reflect"
   _"io/ioutil"
   
 )
@@ -30,13 +30,39 @@ func Homepage(w http.ResponseWriter, r *http.Request){
 //This function is a test to receive POST data from 
 //the frontend, and to understand the format
 func questionResponse(w http.ResponseWriter, r *http.Request){
-  fmt.Println("here is the type of the request body:")
-  fmt.Println(reflect.TypeOf(r.Body)) 
+  fmt.Println("inside questionResponse")
   var t questions
   
   defer r.Body.Close()
   //receives requests in XML
   dec := xml.NewDecoder(r.Body)
+  
+  err := dec.Decode(&t)
+  if err != nil {
+    fmt.Println("error decoding into t:", err)
+
+  } else {
+    fmt.Println("here is decoded q1:", t.QuestionOne)
+    fmt.Println("here is decoded q2:", t.QuestionTwo)
+
+  }
+  
+  //we'll get a response from the model
+  response := true
+  
+  resp := &xmlResponse{Duplicate : response}
+  w.WriteHeader(200)
+  w.Header().Set("Cache-Control", "max-age=0") 
+  
+  //enc := xml.NewEncoder(w)
+  //if err := enc.Encode(resp); err != nil{
+  //  fmt.Println("Error with the encoding", err)
+
+  //}
+  
+  data, err := xml.Marshal(resp)
+  w.Write(data)
+   
   
   //used to extract raw bytes and convert into strings, no formatting
   /*
@@ -51,18 +77,6 @@ func questionResponse(w http.ResponseWriter, r *http.Request){
     fmt.Println(s) 
   } 
   */
-  
-  err := dec.Decode(&t)
-  if err != nil {
-    fmt.Println("error decoding into t:", err)
-
-  } else {
-    fmt.Println("here is decoded q1:", t.QuestionOne)
-    fmt.Println("here is decoded q2:", t.QuestionTwo)
-
-  }
-   
-    
 
 
 }

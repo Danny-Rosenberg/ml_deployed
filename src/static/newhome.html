@@ -17,7 +17,7 @@
   document.getElementById("submitData").onclick = function(){
     var q1 = document.getElementById("question1").value;
     var q2 = document.getElementById("question2").value;
-    makeRequest('client.js', q1, q2);
+    makeRequest("http://localhost:8080/data", q1, q2);
   
   };
  
@@ -34,7 +34,7 @@
     }
 
     //need to make another route to handle the incoming data, sweet
-    var url = "http://localhost:8080/data"
+//    var url = "http://localhost:8080/data"
     httpRequest.onreadystatechange = alertContents;
     httpRequest.open('POST', url, true);
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -52,7 +52,6 @@
    *
    */
   function alertContents(){
-//      alert('what is readystate?');
     if(httpRequest.readyState === XMLHttpRequest.DONE){
       if(httpRequest.status === 200){
         var response = httpRequest.responseText;

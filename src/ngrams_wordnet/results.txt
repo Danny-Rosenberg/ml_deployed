@@ -1,0 +1,14 @@
+ngram |      log loss       |   without stopwords  |  without stopwords except questions  |      
+1       0.6056828004488061     0.5897571539975452       0.5901292028435668
+2       0.6049857218810558     0.6083383062996988       0.6083076352445504
+3       0.626179319151479      0.6367693488164028       0.6367723226308696
+4       0.6415283673680393     0.6511509598572451       0.6508234662108349
+
+            unfiltered           without stopwords     adding length feature
+synonyms | 0.6594235362835043 | 0.6208950920995887 |   0.5859828776733265 
+
+Combined ngrams + wordnet synonyms + length
++ngrams1 				0.54925467749821
++ngrams2			  0.5674945606473311
++ngram3         0.5801638072724122
++ngram4         0.5847244707901122

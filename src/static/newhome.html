@@ -2,11 +2,19 @@
 <html>
 <body>
 
+<h4>Question 1:</h4>    
 <label>
   <input type="text" id="question1" />
 </label>
+    <br>
+<h4>Question 2:</h4>    
 <label>
   <input type="text" id="question2" />
+</label>
+    <br>
+<h4>Are these questions asking the same thing? Input 1 for yes, 0 for no</h4>    
+<label>
+    <input type="text" id="is_duplicate"/>
 </label>
 
 <button id="submitData" type="button">Send data to server</button>
@@ -17,7 +25,8 @@
   document.getElementById("submitData").onclick = function(){
     var q1 = document.getElementById("question1").value;
     var q2 = document.getElementById("question2").value;
-    makeRequest("http://localhost:8080/data", q1, q2);
+    var dup = document.getElementById("is_duplicate").value;
+    makeRequest("http://localhost:8080/data", q1, q2, dup);
   
   };
  
@@ -25,7 +34,7 @@
    * sends the two questions to the given URL
    * 
    */
-  function makeRequest(url, q1, q2){
+  function makeRequest(url, q1, q2, dup){
     httpRequest = new XMLHttpRequest();
 
     if(!httpRequest){
@@ -39,7 +48,7 @@
     httpRequest.open('POST', url, true);
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.setRequestHeader('cache-control', 'no-cache');
-    var xmlStr = "<questions><one>" + q1 + "</one>" + "<two>" + q2 + "</two></questions>"
+    var xmlStr = "<questions><one>" + q1 + "</one><two>" + q2 + "</two><is_dup>" + dup + "</is_dup></questions>"
     httpRequest.send(xmlStr);
       
     //httpRequest.send('questionOne=' + encodeURIComponent(q1) + '&' + 'questionTwo=' + encodeURIComponent(q2));

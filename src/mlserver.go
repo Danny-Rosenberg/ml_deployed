@@ -8,6 +8,7 @@ import (
   "encoding/xml"
   _"reflect"
   _"io/ioutil"
+  "os/exec"
   
 )
 
@@ -19,13 +20,22 @@ type xmlResponse struct{
 type questions struct{
   QuestionOne string `xml:"one"`
   QuestionTwo string `xml:"two"`
+  isDuplicate int `xml:"is_duplicate"`
 
 }
+
+func insert(qs questions){
+  cmd := exec.Command("insert.py", "qs.one", "qs.two", "qs.isDuplicate" )
+  cmd.Start()
+
+}
+
 
 func Homepage(w http.ResponseWriter, r *http.Request){
   fmt.Fprintf(w, "hello world!")
 
 }
+
 
 //This function is a test to receive POST data from 
 //the frontend, and to understand the format
@@ -44,21 +54,16 @@ func questionResponse(w http.ResponseWriter, r *http.Request){
   } else {
     fmt.Println("here is decoded q1:", t.QuestionOne)
     fmt.Println("here is decoded q2:", t.QuestionTwo)
-
+    fmt.Println("here is decoded isDuplicate:", t.isDuplicate)
   }
   
   //we'll get a response from the model
+  
   response := true
   
   resp := &xmlResponse{Duplicate : response}
   w.WriteHeader(200)
   w.Header().Set("Cache-Control", "max-age=0") 
-  
-  //enc := xml.NewEncoder(w)
-  //if err := enc.Encode(resp); err != nil{
-  //  fmt.Println("Error with the encoding", err)
-
-  //}
   
   data, err := xml.Marshal(resp)
   w.Write(data)

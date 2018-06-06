@@ -244,9 +244,6 @@ def main():
   #   ######################
   #    val.write('%s,%s\n'%(i, x_val[i][2]))
 
-  print(x_train.shape)
-  print(x_val.shape) 
-
   pred = model(x_train[:,2:], y_train, x_val[:,2:], y_val)
   output_pred(pred)
   

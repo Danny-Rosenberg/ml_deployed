@@ -6,9 +6,9 @@ import (
   "net/http"
   //"encoding/json"
   "encoding/xml"
-  _"reflect"
-  _"io/ioutil"
   "os/exec"
+  "os"
+  "bytes"
   
 )
 
@@ -20,13 +20,20 @@ type xmlResponse struct{
 type questions struct{
   QuestionOne string `xml:"one"`
   QuestionTwo string `xml:"two"`
-  isDuplicate int `xml:"is_duplicate"`
+  Duplicate string `xml:"is_dup"`
 
 }
 
+//inserts a set of labeled questions into the sqlite database
 func insert(qs questions){
-  cmd := exec.Command("insert.py", "qs.one", "qs.two", "qs.isDuplicate" )
-  cmd.Start()
+  cmd := exec.Command("./wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
+  cmdOutput := &bytes.Buffer{}
+  cmd.Stdout = cmdOutput
+  err := cmd.Run()
+  if err != nil {
+    os.Stderr.WriteString(err.Error())
+  }
+  fmt.Print(string(cmdOutput.Bytes()))
 
 }
 
@@ -37,10 +44,18 @@ func Homepage(w http.ResponseWriter, r *http.Request){
 }
 
 
+//trains model, could happen everytime the server starts or 
+//after a certain of labeled instances enter the db
+func trainModel(){
+  
+
+
+}
+
+
 //This function is a test to receive POST data from 
 //the frontend, and to understand the format
 func questionResponse(w http.ResponseWriter, r *http.Request){
-  fmt.Println("inside questionResponse")
   var t questions
   
   defer r.Body.Close()
@@ -52,10 +67,14 @@ func questionResponse(w http.ResponseWriter, r *http.Request){
     fmt.Println("error decoding into t:", err)
 
   } else {
+    fmt.Println("here is t:", t)
     fmt.Println("here is decoded q1:", t.QuestionOne)
     fmt.Println("here is decoded q2:", t.QuestionTwo)
-    fmt.Println("here is decoded isDuplicate:", t.isDuplicate)
+    fmt.Println("here is decoded Duplicate:", t.Duplicate)
   }
+  
+  //insert into db
+  insert(t)
   
   //we'll get a response from the model
   
@@ -67,27 +86,17 @@ func questionResponse(w http.ResponseWriter, r *http.Request){
   
   data, err := xml.Marshal(resp)
   w.Write(data)
-   
-  
-  //used to extract raw bytes and convert into strings, no formatting
-  /*
-  body, err := ioutil.ReadAll(r.Body)
-  if err != nil{
-    fmt.Println("error reading http body:", err)
-    
-  } else {
-    fmt.Println("here is the body!", body)
-    size := len(body)
-    s := string(body[:size])
-    fmt.Println(s) 
-  } 
-  */
-
 
 }
 
-
 func main(){
+    
+    /*
+  cmd := exec.Command("./test.py")
+  if err:= cmd.Run(); err != nil{
+    fmt.Println("error: ", err)
+  }
+  */
   
   fs := http.FileServer(http.Dir("./static"))
   

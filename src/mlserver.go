@@ -26,7 +26,7 @@ type questions struct{
 
 //inserts a set of labeled questions into the sqlite database
 func insert(qs questions){
-  cmd := exec.Command("./wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
+  cmd := exec.Command("../helpers/insert_wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
   cmdOutput := &bytes.Buffer{}
   cmd.Stdout = cmdOutput
   err := cmd.Run()

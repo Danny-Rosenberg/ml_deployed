@@ -9,6 +9,7 @@ import xgboost as xgb
 from nltk.corpus import stopwords
 from collections import defaultdict
 from nltk.corpus import wordnet as wn
+import pickle
 
 
 stops = set(stopwords.words('english'))
@@ -132,8 +133,6 @@ def syns_feature(sentences):
   
   count_syn = 0
 
-  #factor based on length of sentence?  
-
   syns = defaultdict(set)
 
   #adding the original sentence
@@ -206,10 +205,12 @@ def model(x_train, y_train, x_test, y_test):
   '''the contents of this function can be interchanged depending on model'''
   '''will return list of predictions'''
   
-  label = np.random.randint(2)
+  #label = np.random.randint(2)
   x_train = xgb.DMatrix(x_train, label=y_train)
-  #y_train = xgb.DMatrix(y_train)
   
+  #y_train = xgb.DMatrix(y_train)
+  #in this context, as the validation set, I assume the 'label' part of the matrix is only being used
+  #for computing the final outcome statistics
   x_test = xgb.DMatrix(x_test, label=y_test)
     
 
@@ -221,6 +222,13 @@ def model(x_train, y_train, x_test, y_test):
 
   watchlist = [(x_train, 'train'), (x_test, 'valid')]
   model = xgb.train(params, x_train, 400, watchlist, early_stopping_rounds=50)
+  
+  #addition for mlapp
+  #model.dump_model('ngrams_raw.txt')
+  #model.save_model('ngrams.model')
+
+  pickle.dump(model, open("ngrams.pickle.dat", "wb"))
+  
   pred = model.predict(x_test, ntree_limit=model.best_ntree_limit)
   return pred
 

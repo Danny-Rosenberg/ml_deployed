@@ -1,3 +1,4 @@
+'''This file is an end to end model for ngrams and synsets. Users provide a training and a validation file, and this file will output predictions on the validation file'''
 from sklearn.preprocessing import scale
 import pandas as pd
 import numpy as np
@@ -47,8 +48,7 @@ def parse_files(train, val):
 
 def ngram(sentences, n):
   '''takes two sentence strings, and n, and returns the #of ngrams they share in common'''
-  '''issue:what if the sentences are significantly different sizes?'''
-  '''would be useful to incorporate tf-idf, or maybe remove stop-words'''   
+
   sent1 = sentences[0]
   sent2 = sentences[1]
   
@@ -155,6 +155,12 @@ def add_syns_feature(x_train):
   '''adding a column of synonym counts, then scaling it'''
 
   new_col = np.apply_along_axis(syns_feature, 1, x_train)
+  with open("scales_syn.txt", "a+") as s:
+    me = str(np.mean(new_col))
+    sd = str(np.std(new_col))
+    st = "mean: " + me + ", standard deviation: " + sd
+    s.write("\n" + st)
+
   new_col = scale(new_col, axis=0, with_mean=True, with_std=True, copy=True)
   x_train = np.column_stack((x_train, new_col.T)) 
   return x_train
@@ -165,6 +171,13 @@ def add_ngram_feature(x_train, n):
   
   new_col = np.apply_along_axis(ngram, 1, x_train, n)
   new_col = scale(new_col, axis=0, with_mean=True, with_std=True, copy=True)
+  
+  with open("scales_ngram.txt", "a+") as s:
+    me = str(np.mean(new_col))
+    sd = str(np.std(new_col))
+    st = "mean: " + me + ", standard deviation: " + sd 
+    s.write("\n" + st)
+  
   print(x_train.shape)
   print(new_col.shape)
   x_train = np.column_stack((x_train, new_col.T)) 
@@ -173,7 +186,7 @@ def add_ngram_feature(x_train, n):
 
 
 def length_feature(sentences):
-  '''returns the average lenght of the two sentences'''
+  '''returns the average length of the two sentences'''
 
   sent1 = sentences[0]
   sent2 = sentences[1] 
@@ -186,6 +199,13 @@ def length_feature(sentences):
 def add_length_feature(x_train):
   new_col = np.apply_along_axis(length_feature, 1, x_train)
   new_col = scale(new_col, axis=0, with_mean=True, with_std=True, copy=True)
+    
+  with open("len_scales.txt", "a+") as s:
+    me = str(np.mean(new_col))
+    sd = str(np.std(new_col))
+    st = "mean: " + me + ", standard deviation: " + sd 
+    s.write("\n" + st)
+ 
   print(x_train.shape)
   print(new_col.shape)
   x_train = np.column_stack((x_train, new_col.T))

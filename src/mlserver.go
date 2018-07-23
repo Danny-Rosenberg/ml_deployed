@@ -9,7 +9,7 @@ import (
   "os/exec"
   "os"
   "bytes"
-  
+
 )
 
 type xmlResponse struct{
@@ -26,12 +26,13 @@ type questions struct{
 
 //inserts a set of labeled questions into the sqlite database
 func insert(qs questions){
-  cmd := exec.Command("../helpers/insert_wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
+  cmd := exec.Command("./helpers/insert_wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
   cmdOutput := &bytes.Buffer{}
   cmd.Stdout = cmdOutput
   err := cmd.Run()
   if err != nil {
-    os.Stderr.WriteString(err.Error())
+    fmt.Println("error running the insert command")
+    os.Stderr.WriteString(err.Error() + "\n")
   }
   fmt.Print(string(cmdOutput.Bytes()))
 
@@ -44,24 +45,24 @@ func Homepage(w http.ResponseWriter, r *http.Request){
 }
 
 
-//trains model, could happen everytime the server starts or 
+//trains model, could happen everytime the server starts or
 //after a certain of labeled instances enter the db
 func trainModel(){
-  
+
 
 
 }
 
 
-//This function is a test to receive POST data from 
+//This function is a test to receive POST data from
 //the frontend, and to understand the format
 func questionResponse(w http.ResponseWriter, r *http.Request){
   var t questions
-  
+
   defer r.Body.Close()
   //receives requests in XML
   dec := xml.NewDecoder(r.Body)
-  
+
   err := dec.Decode(&t)
   if err != nil {
     fmt.Println("error decoding into t:", err)
@@ -72,35 +73,43 @@ func questionResponse(w http.ResponseWriter, r *http.Request){
     fmt.Println("here is decoded q2:", t.QuestionTwo)
     fmt.Println("here is decoded Duplicate:", t.Duplicate)
   }
-  
+
   //insert into db
   insert(t)
-  
+
   //we'll get a response from the model
-  
-  response := true
-  
+
+  cmd := exec.Command("./helpers/prediction_wrapper.sh", qs.QuestionOne, qs.QuestionTwo, qs.Duplicate)
+  cmdOutput := &bytes.Buffer{}
+  cmd.Stdout = cmdOutput
+  err := cmd.Run()
+  if err != nil {
+    fmt.Println("error running the questoin/response command")
+    os.Stderr.WriteString(err.Error() + "\n")
+  }
+  fmt.Print(string(cmdOutput.Bytes()))
+
   resp := &xmlResponse{Duplicate : response}
   w.WriteHeader(200)
-  w.Header().Set("Cache-Control", "max-age=0") 
-  
+  w.Header().Set("Cache-Control", "max-age=0")
+
   data, err := xml.Marshal(resp)
   w.Write(data)
 
 }
 
 func main(){
-    
+
     /*
   cmd := exec.Command("./test.py")
   if err:= cmd.Run(); err != nil{
     fmt.Println("error: ", err)
   }
   */
-  
-  fs := http.FileServer(http.Dir("./static"))
-  
-  http.Handle("/", fs) 
+
+  fs := http.FileServer(http.Dir("./static/"))
+
+  http.Handle("/newhome.html", fs)
   http.HandleFunc("/data", questionResponse)
 
 /*
@@ -111,8 +120,7 @@ func main(){
 
   }
 */
-  //fmt.Println(srv.ListenAndServe()) 
-  fmt.Println(http.ListenAndServe(":8080", nil))  
+  //fmt.Println(srv.ListenAndServe())
+  fmt.Println(http.ListenAndServe(":8080", nil))
 
 }
-
